@@ -97,7 +97,7 @@ before_script:
 
 script:
   # Run all checks
-  - travis_wait ./gradlew build connectedCheck -x library:signArchives -PdisablePreDex
+  - ./gradlew build connectedCheck -x library:signArchives -PdisablePreDex
 
 after_script:
   # Show tests and lint results
