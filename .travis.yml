@@ -85,10 +85,6 @@ install:
   - ./gradlew clean
   # Check components status
   - sdkmanager --list || true
-  # Run unit tests and show results
-  - ./gradlew test -PdisablePreDex
-  - cat ${TRAVIS_BUILD_DIR}/*/build/test-results/debug/*
-  - cat ${TRAVIS_BUILD_DIR}/*/build/test-results/release/*
 
 before_script:
   # Wait for emulator fully-booted
