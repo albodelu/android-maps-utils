@@ -23,7 +23,6 @@ env:
     - API=25 # Android API level 25 by default
     - TAG=google_apis # Google APIs by default, alternatively use default
     - ABI=armeabi-v7a # ARM ABI v7a by default
-    - GRADLE_OPTS="-Xmx512m"
     - QEMU_AUDIO_DRV=none # Disable emulator audio to avoid warning
     - ANDROID_HOME=/usr/local/android-sdk-24.0.2 # Depends on the cookbooks version used in the VM
     - TOOLS=${ANDROID_HOME}/tools # PATH order matters, exists more than one emulator script
@@ -76,7 +75,7 @@ install:
   - echo yes | sdkmanager "$EMULATOR" # Install emulator system image
   # Create and start emulator
   - echo no | avdmanager create avd -n acib -k "$EMULATOR" -f --abi "$ABI" --tag "$TAG"
-  - emulator -avd acib -engine classic -no-window -no-boot-anim -verbose -qemu -m 512 &
+  - emulator -avd acib -engine classic -no-window -no-boot-anim -selinux permissive -verbose -qemu -m 512 &
   # Start adbd, wait for device connected and show android serial
   - adb wait-for-device get-serialno
   # Show version and download Gradle Wrapper when is not present in cache
@@ -98,7 +97,7 @@ before_script:
 
 script:
   # Run all checks
-  - travis_wait ./gradlew check connectedCheck -x library:signArchives -PdisablePreDex
+  - travis_wait ./gradlew build connectedCheck -x library:signArchives -PdisablePreDex
 
 after_script:
   # Show tests and lint results
