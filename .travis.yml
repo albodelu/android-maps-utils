@@ -30,8 +30,10 @@ matrix:
   include: # More Emulator API levels to create a build matrix
     - env: API=24
     - env: API=23
-    - env: API=22
+    - env: API=21
     - env: API=19
+  allow_failures:
+    - env: API=23
 
 before_install:
   - export EMULATOR="system-images;android-${API};${TAG};${ABI}" # Used to install/create emulator
@@ -79,3 +81,5 @@ script:
 
 after_script:
   - cat ${TRAVIS_BUILD_DIR}/*/build/outputs/androidTest-results/connected/*
+  - cat ${TRAVIS_BUILD_DIR}/library/build/reports/lint-results.xml
+  - cat ${TRAVIS_BUILD_DIR}/demo/build/reports/lint-results.xml
