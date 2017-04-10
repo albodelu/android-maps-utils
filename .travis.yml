@@ -76,3 +76,6 @@ before_script:
 
 script:
   - ./gradlew clean check connectedCheck -x library:signArchives -PdisablePreDex
+
+after_script:
+  - cat ${TRAVIS_BUILD_DIR}/*/build/outputs/androidTest-results/connected/*
