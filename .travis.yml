@@ -8,6 +8,9 @@ cache:
     - ${TRAVIS_BUILD_DIR}/gradle/caches/
     - ${TRAVIS_BUILD_DIR}/gradle/wrapper/dists/
 
+notifications:
+  email: false
+
 android:
   components: # Cookbooks version: https://github.com/travis-ci/travis-cookbooks/tree/9c6cd11
     - tools # Update preinstalled tools from revision 24.0.2 to 24.4.1
@@ -32,10 +35,11 @@ matrix:
     - env: API=24
     - env: API=23
     - env: API=22
-    - env: API=19
+    - env: API=21
   allow_failures:
     - env: API=23
     - env: API=22
+    - env: API=21
 
 before_install:
   - export EMULATOR="system-images;android-${API};${TAG};${ABI}" # Used to install/create emulator
@@ -83,6 +87,7 @@ script:
   - ./gradlew clean check connectedCheck -x library:signArchives -PdisablePreDex
 
 after_script:
+  # Show tests and lint results
   - cat ${TRAVIS_BUILD_DIR}/*/build/outputs/androidTest-results/connected/*
   - cat ${TRAVIS_BUILD_DIR}/library/build/reports/lint-results.xml
   - cat ${TRAVIS_BUILD_DIR}/demo/build/reports/lint-results.xml
