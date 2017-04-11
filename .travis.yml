@@ -1,7 +1,9 @@
 language: android
 jdk: oraclejdk8
-# Use the Travis Container-Based Infrastructure
-sudo: false
+sudo: required # false for Container-Based Infrastructure, required for Sudo-enabled Infrastructure
+
+before_cache:
+  - rm -f ${TRAVIS_BUILD_DIR}/gradle/caches/modules-2/modules-2.lock # Avoid to repack it due locks
 
 cache:
   directories:
@@ -24,13 +26,14 @@ env:
     - TAG=google_apis # Google APIs by default, alternatively use default
     - ABI=armeabi-v7a # ARM ABI v7a by default
     - QEMU_AUDIO_DRV=none # Disable emulator audio to avoid warning
+    - GRADLE_USER_HOME="${TRAVIS_BUILD_DIR}/gradle" # Change location for Gradle Wrapper and cache
     - ANDROID_HOME=/usr/local/android-sdk-24.0.2 # Depends on the cookbooks version used in the VM
     - TOOLS=${ANDROID_HOME}/tools # PATH order matters, exists more than one emulator script
     - PATH=${ANDROID_HOME}:${ANDROID_HOME}/emulator:${TOOLS}:${TOOLS}/bin:${ANDROID_HOME}/platform-tools:${PATH}
     - ADB_INSTALL_TIMEOUT=20 # minutes (2 minutes by default)
 
 matrix:
-  include: # More Emulator API levels to create a build matrix
+  include: # More Emulator API levels to build in parallel
     - env: API=24
     - env: API=23
     - env: API=22
@@ -39,6 +42,7 @@ matrix:
     - env: API=23
     - env: API=22
     - env: API=21
+  fast_finish: false
 
 before_install:
   - export EMULATOR="system-images;android-${API};${TAG};${ABI}" # Used to install/create emulator
@@ -78,15 +82,15 @@ install:
   - emulator -avd acib -engine classic -no-window -no-boot-anim -camera-back none -camera-front none -selinux permissive -verbose -qemu -m 1024 &
   # Start adbd, wait for device connected and show android serial
   - adb wait-for-device get-serialno
-  # Show version and download Gradle Wrapper when is not present in cache
+  # Show version and download Gradle Wrapper if it's not already cached
   - ./gradlew --version
-  # Clean project and download missing dependencies and components when are not present in cache
+  # Clean project and download missing dependencies and components
   - ./gradlew clean
   # Check components status
   - sdkmanager --list || true
 
 before_script:
-  # Wait for emulator fully-booted
+  # Wait for emulator fully-booted and disable animations
   - android-wait-for-emulator
   - adb shell settings put global window_animation_scale 0 &
   - adb shell settings put global transition_animation_scale 0 &
@@ -96,11 +100,11 @@ before_script:
   - sleep 15
 
 script:
-  # Run all checks and device checks
-  - ./gradlew check -PdisablePreDex
-  - ./gradlew connectedCheck -x library:signArchives -PdisablePreDex
+  # Run all device checks
+  - ./gradlew build connectedCheck -x library:signArchives -PdisablePreDex
 
 after_script:
   # Show tests and lint results
   - cat ${TRAVIS_BUILD_DIR}/*/build/outputs/androidTest-results/connected/*
-  - cat ${TRAVIS_BUILD_DIR}/*/build/reports/lint-results.xml
+  - cat ${TRAVIS_BUILD_DIR}/library/build/reports/lint-results.xml
+  - cat ${TRAVIS_BUILD_DIR}/demo/build/reports/lint-results.xml
