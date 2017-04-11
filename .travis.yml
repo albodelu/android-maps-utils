@@ -89,8 +89,8 @@ install:
   - ./gradlew clean
   # Check components status
   - sdkmanager --list || true
-  # Run lint
-  - ./gradlew lint
+  # Run all checks
+  - ./gradlew check -PdisablePreDex
 
 before_script:
   # Wait for emulator fully-booted and disable animations
@@ -102,10 +102,9 @@ before_script:
   - adb shell input keyevent 82 &
   - sleep 15
 
-
 script:
   # Run all device checks
-  - ./gradlew check connectedCheck -x library:signArchives -PdisablePreDex
+  - ./gradlew connectedCheck -x library:signArchives -PdisablePreDex
 
 after_script:
   # Show tests and lint results
