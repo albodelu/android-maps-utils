@@ -41,7 +41,6 @@ matrix:
   allow_failures:
     - env: API=23
     - env: API=22
-    - env: API=21
   fast_finish: false
 
 before_install:
@@ -79,7 +78,7 @@ install:
   - echo yes | sdkmanager "$EMULATOR" # Install emulator system image
   # Create and start emulator
   - echo no | avdmanager create avd -n acib -k "$EMULATOR" -f --abi "$ABI" --tag "$TAG"
-  - emulator -avd acib -engine classic -no-window -no-boot-anim -camera-back none -camera-front none -selinux permissive -verbose -qemu -m 1024 &
+  - emulator -avd acib -engine classic -no-window -no-boot-anim -camera-back none -camera-front none -selinux permissive -verbose -qemu -m 512 &
   # Start adbd, wait for device connected and show android serial
   - adb wait-for-device get-serialno
   # Show version and download Gradle Wrapper if it's not already cached
@@ -97,11 +96,10 @@ before_script:
   - adb shell settings put global animator_duration_scale 0 &
   - sleep 30
   - adb shell input keyevent 82 &
-  - sleep 15
 
 script:
   # Run all device checks
-  - ./gradlew build connectedCheck -x library:signArchives -PdisablePreDex
+  - ./gradlew check connectedCheck -x library:signArchives -PdisablePreDex
 
 after_script:
   # Show tests and lint results
