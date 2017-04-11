@@ -96,11 +96,11 @@ before_script:
   - sleep 15
 
 script:
-  # Run all device checks
-  - ./gradlew build connectedCheck -x library:signArchives -PdisablePreDex
+  # Run all checks and device checks
+  - ./gradlew check -PdisablePreDex
+  - ./gradlew connectedCheck -x library:signArchives -PdisablePreDex
 
 after_script:
   # Show tests and lint results
   - cat ${TRAVIS_BUILD_DIR}/*/build/outputs/androidTest-results/connected/*
-  - cat ${TRAVIS_BUILD_DIR}/library/build/reports/lint-results.xml
-  - cat ${TRAVIS_BUILD_DIR}/demo/build/reports/lint-results.xml
+  - cat ${TRAVIS_BUILD_DIR}/*/build/reports/lint-results.xml
